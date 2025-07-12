@@ -1,0 +1,63 @@
+﻿@page "/"
+@inject UserServiceClient userService
+@inject NavigationManager navigation
+@inject CurrentUserService currentUser
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light ">
+    <div class="p-4 bg-white shadow rounded" style="width: 350px;">
+        <h4 class="text-center">Регистрация</h4>
+<EditForm Model="registerModel" OnValidSubmit="HandleRegister">
+<DataAnnotationsValidator/>
+<ValidationSummary/>
+<div class="mb-2">
+    <label>Email</label>
+    <InputText @bind-Value="registerModel.Email" class="form-control"/>
+</div>
+<div class="mb-2">
+    <label>Password</label>
+    <InputText @bind-Value="registerModel.Password" class="form-control" />
+</div>
+<div class="mb-2">
+    <label>Name</label>
+    <InputText @bind-Value="registerModel.Name" class="form-control" />
+</div>
+    
+<button type="submit"  class=" btn btn-primary ">Зарегистрироваться</button>
+</EditForm>
+            <p class="text-center mt-3">
+                Уже есть аккаунт?
+                <a href="/login">Войти</a>
+            </p>
+        </div>
+    </div>
+@if (!string.IsNullOrEmpty(message))
+{
+    <p class="text-success">@message</p>
+}
+@code {
+    private RegisterRequest registerModel=new RegisterRequest();
+    private string message;
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            var result = await userService.RegisterAsync(registerModel);
+            if (result)
+            {
+                message = "Регистрация успешна!";
+                currentUser.Email = registerModel.Email;
+                currentUser.UserName = registerModel.Name;
+                navigation.NavigateTo("PersonalAccount");
+            }
+            else
+            {
+                message = "Ошибка регистрации";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Ошибка: {ex.Message}";
+        }
+         
+    }
+}

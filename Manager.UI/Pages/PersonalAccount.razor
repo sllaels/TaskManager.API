@@ -1,0 +1,12 @@
+﻿@page "/PersonalAccount"
+@inject NavigationManager navigation
+@inject CurrentUserService currentUser
+@if (!string.IsNullOrEmpty(currentUser.UserName))
+{
+  
+}
+
+@code {
+    private RegisterRequest forLogin = new();
+    private string message;
+}

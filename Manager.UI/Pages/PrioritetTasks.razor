@@ -1,0 +1,34 @@
+﻿@page "/prioritetTask"
+@inject TaskEntityServiceClient taskEntity
+@inject CurrentUserService curentUser
+<h3>PrioritetTasks</h3>
+@if(priorTask==null)
+{
+    <p><em>Loading...</em></p>
+}
+else if(!priorTask.Any())
+{
+    <p><em>У вас еще нент задач.</em></p>
+ <a href="/createTask"> Составить задачу</a>
+}
+else
+{
+    <ul>
+        @foreach(var task in priorTask)
+        {
+            <li>
+                <strong>task.Name</strong>
+            </li>
+        }
+
+    </ul>
+}
+
+@code {
+    private List<TaskEntity> priorTask;
+   
+    protected override async Task OnInitializedAsync()
+    {
+        priorTask = await taskEntity.GetTask(curentUser.Email);
+    }
+}

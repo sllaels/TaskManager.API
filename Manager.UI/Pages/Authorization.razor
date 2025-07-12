@@ -1,0 +1,56 @@
+﻿@page "/login"
+@inject NavigationManager navigation
+@inject UserServiceClient userService
+@inject CurrentUserService currentUser
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light ">
+    <div class="p-4 bg-white shadow rounded" style="width: 350px;">
+        <h4 class="text-center">Вход</h4>
+<EditForm Model="forLogin" OnValidSubmit="Login">
+<DataAnnotationsValidator/>
+<ValidationSummary/>
+ 
+    <div class="mb-2">
+        <label>Email</label>
+        <InputText @bind-Value="forLogin.Email" class="form-control"/>
+    </div>
+    <div class="mb-2">
+        <label>Name</label>
+        <InputText @bind-Value="forLogin.Name" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label>Password</label>
+        <InputText @bind-Value="forLogin.Password" type="Password" class="form-control" />
+    </div>
+    <button type="submit" class=" btn btn-primary">Войти</button>
+</EditForm>
+        <p class="text-center mt-3">
+           Еще нет аккаунта?
+            <a href="/">Регистрация</a>
+        </p>
+    </div>
+</div>
+@code {
+    private RegisterRequest forLogin = new();
+    private string message;
+
+    private async Task Login()
+    {
+        try
+        {
+            var token = await userService.LoginAsync(forLogin);
+            if (!string.IsNullOrEmpty(token))
+            {
+                message = "Успешный вход!";
+                currentUser.Email = forLogin.Email;
+                currentUser.UserName = forLogin.Name;
+                navigation.NavigateTo("PersonalAccount");
+            }
+            else { message = "Пожалуйста, пройдите регистрацию"; }
+        }
+        catch (Exception ex)
+        {
+            message = $"Ошибка: {ex.Message}";
+        }
+    }
+
+}

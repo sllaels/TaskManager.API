@@ -1,0 +1,63 @@
+﻿@page "/createTask"
+@inject TaskEntityServiceClient taskEntity
+@inject NavigationManager navigation
+<h4 class="text-center">Новая задача</h4>
+<EditForm Model="taskModel" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="mb-2">
+        <label>Название</label>
+        <InputText @bind-Value="taskModel.Tittle" class="form-control"/>
+    </div>
+    <div class="mb-2">
+        <label>Описание задачи</label>
+        <InputText @bind-Value="taskModel.Descriptoin" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label>Отнесите к категории</label>
+        <InputText @bind-Value="taskModel.Category" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label>Приоритет задачи</label>
+        <InputText @bind-Value="taskModel.Prioritet" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label>До какого числа должно быть сделано</label>
+        <InputDate @bind-Value="taskModel.Date" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Создать</button>
+</EditForm>
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@code {
+    private TaskRequest taskModel=new TaskRequest();
+    private string successMessage;
+    private string errorMessage;
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var res = await taskEntity.CreateTask(taskModel);
+            if (res)
+            {
+                successMessage = "Задача успешно создана!";
+                taskModel = new();
+            }
+            else
+            {
+                errorMessage = "Ошибка при создании задачи.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Ошибка: {ex.Message}";
+        }
+    }
+}
