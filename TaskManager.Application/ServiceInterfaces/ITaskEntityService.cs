@@ -11,7 +11,9 @@ namespace TaskManager.Application.ServiceInterfaces
 {
     public interface ITaskEntityService
     {
-        Task<bool> CreateTask(TaskRequest request);
-        Task<List<TaskEntity>> GetTask(string email);
+        Task CreateTask(TaskRequest request);
+        Task<List<TaskEntity>>GetTask();
+        Task<List<TaskEntity>> GetPrioritetTask();
+        Task<List<TaskEntity>> GetByDateTask();
     }
 }

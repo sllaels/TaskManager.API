@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Manager.UI.ClientServiceClasses;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -15,7 +16,8 @@ namespace Manager.UI
             builder.Services.AddScoped<UserServiceClient>();
             builder.Services.AddScoped<CurrentUserService>();
             builder.Services.AddScoped<TaskEntityServiceClient>();
-
+            builder.Services.AddScoped<WorkWithToken>();
+            builder.Services.AddBlazoredLocalStorage();
             await builder.Build().RunAsync();
 
         }

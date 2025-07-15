@@ -18,7 +18,6 @@ namespace TaskManager.Infastructure.RepositoryClasses
             this.contextClass = contextClass;
         }
 
-        private User user=new User();
         public async Task<IEnumerable<TaskEntity>> GetAllAsync()=>await contextClass.Tasks.ToListAsync();
 
         public async Task AddAsync(TaskEntity task)=>await contextClass.Tasks.AddAsync(task);
@@ -28,10 +27,10 @@ namespace TaskManager.Infastructure.RepositoryClasses
         public void Delete(TaskEntity task)=>contextClass.Tasks.Remove(task);
 
         public async Task<TaskEntity?> GetByIdAsync(int id)=>await contextClass.Tasks.FindAsync(id);
-        public async Task<List<TaskEntity>> GetByPrioritet(string email) => await contextClass.Tasks.Where(u=>user.Email==email).OrderBy(t=>t.Prioritet).ToListAsync();
-        public async Task<List<TaskEntity>> GetByDate()=>await contextClass.Tasks.OrderBy(t=>t.Date).ToListAsync();
+        public async Task<List<TaskEntity>> GetByPrioritet(int UserId) => await contextClass.Tasks.Where(u=>u.UserId==UserId).OrderBy(t=>t.Prioritet).ToListAsync();
+        public async Task<List<TaskEntity>> GetByDate(int userId)=>await contextClass.Tasks.Where(u=>u.UserId==userId).OrderBy(t=>t.Date).ToListAsync();
         public async Task<TaskEntity?> GetByCategoryAsync(string categoryName)=>await contextClass.Tasks.FindAsync(categoryName);
-
+       public async Task<List<TaskEntity>> GetTasksByIdAsync(int userId)=>await contextClass.Tasks.Where(u=>u.UserId==userId).ToListAsync();
         public async Task SaveChangesAsync()=>await contextClass.SaveChangesAsync();
           
           

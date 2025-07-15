@@ -9,6 +9,7 @@ using TaskManager.Contracts;
 using TaskManager.Application.ServiceInterfaces;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
 
 namespace TaskManager.Application.Services
 {
@@ -16,16 +17,22 @@ namespace TaskManager.Application.Services
     {
         private readonly ILogger<UserService> _logger;
         private IJwtService jwtService;
-        private IUser user;
+        private IUser userRepository;
         public UserService(IJwtService jwtService,IUser user,ILogger<UserService> _logger)
         {
             this.jwtService = jwtService;
-            this.user = user;
+            this.userRepository = user;
             this._logger = _logger;
+        }
+        private string PasswordHasher(string password)
+        {
+          var hash=new PasswordHasher<User>();
+            var passwordHasher = hash.HashPassword(new User(), password);
+            return passwordHasher;
         }
         public async Task<bool> RegisterAsync(RegisterRequest request)
         {
-            var existen = await user.GetByEmailAsync(request.Email);
+            var existen = await userRepository.GetByEmailAsync(request.Email);
             if (existen != null)
             {
                 return false;
@@ -34,23 +41,31 @@ namespace TaskManager.Application.Services
             {
                 Email=request.Email,
                 Name = request.Name,
-                Password = request.Password
+                Password = PasswordHasher(request.Password)
             };
-            await user.AddAsync(us);
-            await user.SaveChangesAsync();
+            await userRepository.AddAsync(us);
+            await userRepository.SaveChangesAsync();
             return true;
         }
-        public async Task<string?> LoginAsync(RegisterRequest request)
+        public async Task<string?> LoginAsync(LoginRequest request)
         {
             try
             {
-                var _user = await user.GetByEmailAsync(request.Email);
-                if (_user == null)
+                var exsistUser = await userRepository.GetByEmailAsync(request.Email);
+                if (exsistUser == null)
                 {
+                    _logger.LogWarning("Попытка входа с несуществующим email: {Email}", request.Email);
                     return null;
                 }
 
-                return jwtService.GeneratToken(_user);
+                var hash = new PasswordHasher<User>();
+                var result = hash.VerifyHashedPassword(exsistUser,exsistUser.Password,request.Password);
+                if(result==PasswordVerificationResult.Failed)
+                {
+                    _logger.LogWarning("Неверный пароль для пользователя: {Email}", request.Email);
+                    return null;
+                }
+                return jwtService.GeneratToken(exsistUser);
             }
             catch (Exception ex)
             {

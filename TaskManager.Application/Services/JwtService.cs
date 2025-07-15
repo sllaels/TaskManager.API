@@ -18,8 +18,10 @@ namespace TaskManager.Application.Services
         {
             var claims = new List<Claim>
             { 
-                new Claim("UserName", user.Name),
-                new Claim("UserId", user.Id.ToString())
+               
+                  new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                  new Claim(ClaimTypes.Name, user.Name),
+                  new Claim(ClaimTypes.Email, user.Email)
             };
 
             var token = new JwtSecurityToken(

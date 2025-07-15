@@ -8,7 +8,7 @@
 }
 else if(!priorTask.Any())
 {
-    <p><em>У вас еще нент задач.</em></p>
+    <p><em>У вас еще нет задач.</em></p>
  <a href="/createTask"> Составить задачу</a>
 }
 else
@@ -17,7 +17,8 @@ else
         @foreach(var task in priorTask)
         {
             <li>
-                <strong>task.Name</strong>
+                <strong>@task.Tittle</strong>
+                <strong>@task.Descriptoin</strong>
             </li>
         }
 
@@ -26,9 +27,9 @@ else
 
 @code {
     private List<TaskEntity> priorTask;
-   
+
     protected override async Task OnInitializedAsync()
     {
-        priorTask = await taskEntity.GetTask(curentUser.Email);
+        priorTask = await taskEntity.GetTaskByDate();
     }
 }

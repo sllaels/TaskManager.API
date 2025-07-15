@@ -1,6 +1,8 @@
 ﻿@page "/createTask"
 @inject TaskEntityServiceClient taskEntity
+@inject WorkWithToken workWithToken
 @inject NavigationManager navigation
+@inject ILocalStorageService localStorage
 <h4 class="text-center">Новая задача</h4>
 <EditForm Model="taskModel" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator/>
@@ -40,6 +42,10 @@
     private TaskRequest taskModel=new TaskRequest();
     private string successMessage;
     private string errorMessage;
+    protected override async Task OnInitializedAsync()
+    {
+        await workWithToken.TrySetTokenFromStorage(localStorage);
+    }
     private async Task HandleSubmit()
     {
         try

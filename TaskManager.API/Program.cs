@@ -23,6 +23,7 @@ namespace TaskManager.API
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddRazorPages();
 
             // Регистрируем CORS ПОЛИТИКУ до Build()

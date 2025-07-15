@@ -1,36 +1,69 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TaskManager.Domain.Interfaces;
+﻿using TaskManager.Domain.Interfaces;
 using TaskManager.Contracts;
 using TaskManager.Application.ServiceInterfaces;
 using TaskManager.Domain;
-using System.Net.Http.Json;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace TaskManager.Application.Services
 {
-    public class TaskEntityService:ITaskEntityService
+    public class TaskEntityService:WorkWithCurrentUser, ITaskEntityService
     {
-        private readonly HttpClient httpClient;
-        public TaskEntityService(HttpClient httpClient)
+        private readonly ITaskEntity taskEntity;
+      
+        private readonly ILogger<TaskEntityService> logger;
+        public TaskEntityService(ITaskEntity taskEntity,ILogger<TaskEntityService> logger, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
         {
-            this.httpClient = httpClient;
+            this.taskEntity = taskEntity;
+
+            this.logger = logger;
         }
-        public async Task<bool> CreateTask(TaskRequest request)
+        public async Task CreateTask(TaskRequest request)
         {
-            var create=await httpClient.PostAsJsonAsync("api/Task/createTask",request);
-            return create.IsSuccessStatusCode;
+            try
+            {
+                var userId = GetCurrentUserId();
+                TaskEntity task = new TaskEntity
+                {
+                    Tittle = request.Tittle,
+                    Descriptoin = request.Descriptoin,
+                    Date = request.Date,
+                    Category = request.Category,
+                    Prioritet = request.Prioritet,
+                    UserId = userId,
+                };
+                await taskEntity.AddAsync(task);
+                await taskEntity.SaveChangesAsync();
+     
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                logger.LogWarning(ex, "Пользователь неавторизован при создании задачи");
+                throw;
+            }
+            catch(Exception ex)
+            {
+                logger.LogError(ex, "Ошибка при создании задачи");
+                throw;
+            }
         }
-    
-        public async Task<List<TaskEntity>> GetTask(string email)
+
+        public async Task<List<TaskEntity>> GetTask()
         {
-            var responce = await httpClient.GetAsync("api/Task/prioritetTask");
-            if (responce.IsSuccessStatusCode)
-                return new List<TaskEntity>();
-            var task= await responce.Content.ReadFromJsonAsync<List<TaskEntity>>();
-            return task ?? new List<TaskEntity>();
+            var userId= GetCurrentUserId();
+            return await taskEntity.GetTasksByIdAsync(userId);
+        }
+        public async Task<List<TaskEntity>> GetByDateTask()
+        {
+            var userId = GetCurrentUserId();
+            return await taskEntity.GetByDate(userId);
+        }
+        public async Task<List<TaskEntity>> GetPrioritetTask()
+        {
+            var userId = GetCurrentUserId();
+            var taskWithPrioritet = await taskEntity.GetByPrioritet(userId);
+            return taskWithPrioritet;
         }
     }
  

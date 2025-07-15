@@ -7,17 +7,21 @@ using TaskManager.Domain.Interfaces;
 using TaskManager.Application.ServiceInterfaces;
 using TaskManager.Contracts;
 using TaskManager.Domain;
+using Microsoft.AspNetCore.Http;
 namespace TaskManager.Application.Services
 {
-    public class CategoryService:ICategoryService
+    public class CategoryService: WorkWithCurrentUser, ICategoryService
     {
         private readonly ICategory category;
-        public CategoryService(ICategory category)
-            { this.category = category; }
+        public CategoryService(ICategory category, IHttpContextAccessor httpContextAccessor) : base(httpContextAccessor)
+        { this.category = category; }
 
         public async Task CreateCaterogyAsync(CategoryRequest request)
         {
-            Category categoryList = new Category { Tittle = request.Tittle };
+            var userId=GetCurrentUserId();
+            Category categoryList = new Category 
+            { Tittle = request.Tittle,
+              UserId=userId};
             await category.AddAsync(categoryList);
             await category.SaveChangesAsync();
         }

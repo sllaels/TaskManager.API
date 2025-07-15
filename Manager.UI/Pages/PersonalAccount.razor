@@ -1,12 +1,23 @@
 ﻿@page "/PersonalAccount"
 @inject NavigationManager navigation
 @inject CurrentUserService currentUser
-@if (!string.IsNullOrEmpty(currentUser.UserName))
+@inject ILocalStorageService localStorage
+@if (currentUser.Email==null)
 {
-  
+  <p>Загрузка...</p>
 }
 
+
 @code {
-    private RegisterRequest forLogin = new();
+    private LoginRequest forLogin = new();
     private string message;
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await localStorage.GetItemAsync<string>("AuthToken");
+        if (string.IsNullOrEmpty(token))
+        {
+            navigation.NavigateTo("login");
+            return;
+        }
+    }
 }

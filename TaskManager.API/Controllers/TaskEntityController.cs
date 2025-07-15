@@ -5,42 +5,38 @@ using TaskManager.Contracts;
 using TaskManager.Domain.Interfaces;
 using TaskManager.Domain;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TaskManager.API.Controllers
 {
-
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class TaskController : ControllerBase
     {
-        private readonly ITaskEntity taskEntity;
-        public TaskController(ITaskEntity taskEntity)
+        private readonly ITaskEntityService taskEntityService;
+        public TaskController(ITaskEntityService taskEntityService)
         {
-            this.taskEntity = taskEntity;
+          this.taskEntityService = taskEntityService;
         }
-        private User user = new User();
-        [HttpPost("createTask")]
-        public async Task<IActionResult> CreateTaskAsync([FromBody] TaskEntity task)
-        {
-            if (!ModelState.IsValid) { return BadRequest(ModelState); }
-            await taskEntity.AddAsync(task);
-            await taskEntity.SaveChangesAsync();
-            return Ok(task);
 
+        [HttpPost("createTask")]
+        public async Task<IActionResult> CreateTaskAsync(TaskRequest request)
+        {
+          await taskEntityService.CreateTask(request);
+            return Ok();
         }
         [HttpGet("prioritetTask")]
         public async Task<IActionResult> GetPrioritetTaskAsync()
         {
-            if (!ModelState.IsValid) { return BadRequest(ModelState); }
-            var priorTask=await taskEntity.GetByPrioritet(user.Email);
-            return Ok(priorTask);
-
+            var getTaskByPrioritet = await taskEntityService.GetPrioritetTask();
+            return Ok(getTaskByPrioritet);
         }
-        [HttpGet("GetTaskByDate")]
+        [HttpGet("GetTasksByDate")]
         public async Task<IActionResult> GetTaskByDate()
         {
-            var dateTask= await taskEntity.GetByDate();
-            return Ok(dateTask);
+            var getTasksByDate = await taskEntityService.GetByDateTask();
+            return Ok(getTasksByDate);
         }
     }
 }

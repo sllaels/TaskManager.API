@@ -29,7 +29,7 @@ namespace TaskManager.API.Controllers
             return Ok("Регистрация успешна");
         }
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] RegisterRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             try
             {

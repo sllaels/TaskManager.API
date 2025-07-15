@@ -10,6 +10,6 @@ namespace TaskManager.Application.ServiceInterfaces
     public interface IUserService
     {
         Task<bool> RegisterAsync(RegisterRequest request);
-        Task<string?> LoginAsync(RegisterRequest request);
+        Task<string?> LoginAsync(LoginRequest request);
     }
 }
